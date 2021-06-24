@@ -44,7 +44,7 @@ class PostgreSQLConnector:
 
     def _get_connection(self):
         """
-        Gets active Oracle connection.
+        Gets active PostgreSQL connection.
         :return: PostgreSQL connection reference
         """
         return self.connection
