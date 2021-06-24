@@ -1,28 +1,36 @@
 import json
 
 from kafka import KafkaProducer, KafkaConsumer
-from connectors import PostgreSQLConnector
 
-from utils import constants
+from connectors import PostgreSQLConnector
 
 
 class KafkaClient:
     """
+    A class that interacts with Apache Kafka consumers and producers
+
     Usage:
-    kafka = KafkaClient('localhost', 9092)
+    kafka = KafkaClient('localhost:9092') or ...
+    kafka = KafkaClient()
     """
 
     def __init__(self, bootstrap_servers='localhost:9092'):
         """
         Initialize KafkaClient.
-        :param broker: Kafka broker IP
-        :param port: Kafka broker port (default: 9092)
+        :param bootstrap_servers: Kafka bootstrap servers
         """
         super().__init__()
         self.kafka = None
         self.brokers = bootstrap_servers
 
     def create_consumer(self, group_id, auto_offset_reset) -> KafkaConsumer:
+        """
+        Creates a Kafka consumer instance
+        :param group_id: Group ID
+        :param auto_offset_reset: Read from start or end of stream. Valid values 'earliest' or 'latest'.
+        :return: KafkaConsumer instance
+        :rtype: KafkaConsumer
+        """
         return KafkaConsumer(
             bootstrap_servers=self.brokers,
             group_id=group_id,
@@ -36,6 +44,11 @@ class KafkaClient:
         )
 
     def create_producer(self) -> KafkaProducer:
+        """
+        Creates a Kafka producer instance
+        :return: KafkaProducer instance
+        :rtype: KafkaProducer
+        """
         return KafkaProducer(
             bootstrap_servers=self.brokers,
             key_serializer=lambda v: json.dumps(v).encode('utf-8'),
@@ -48,6 +61,14 @@ class KafkaClient:
         )
 
     def consume(self, topics, group_id, auto_offset_reset, pg_table):
+        """
+        Consume data process that stores received records to PostgreSQL table
+        :param topics: Kafka topics to subscribe
+        :param group_id: Kafka consumer group ID
+        :param auto_offset_reset: Read from start or end of stream. Valid values 'earliest' or 'latest'.
+        :param pg_table: PostgreSQL target table
+        :return: None
+        """
         consumer = self.create_consumer(group_id, auto_offset_reset)
         print("Consuming Kafka Topic. Press Ctrl+C to exit")
         consumer.subscribe(topics)
@@ -57,7 +78,6 @@ class KafkaClient:
 
         try:
             for msg in consumer:
-                # print(msg)
                 print(f"Topic: {msg.topic}, Offset: {msg.offset}, Key: {msg.key}, Value: {msg.value}")
                 con.insert(pg_table, msg.value)
             con.close()
@@ -67,5 +87,12 @@ class KafkaClient:
             con.close()
 
     def produce(self, topic, key, message):
+        """
+        Method that produces messages to a Kafka topic
+        :param topic: Kafka topic
+        :param key: Record key
+        :param message: record payload
+        :return: None
+        """
         producer = self.create_producer()
         producer.send(topic, key=key, value=message)

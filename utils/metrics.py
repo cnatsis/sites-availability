@@ -5,6 +5,11 @@ import requests
 
 
 def get_site_metrics(site):
+    """
+    Fetches site metrics
+    :param site: Site to check
+    :return: Metrics dict for both successful and unsuccessful requests
+    """
     now = datetime.now()
 
     request_time = now.strftime("%Y-%m-%d %H:%M:%S")
@@ -13,8 +18,11 @@ def get_site_metrics(site):
         b = requests.get(site)
         b.raise_for_status()
 
+        # Fetch request metrics for a successful request
         http_response_time = b.elapsed.total_seconds()
         status_code = b.status_code
+
+        # Search for title tag in HTML. Leave empty string if title not found.
         search_text = re.search("<title>(.*?)</title>", b.text)
 
         grouped_text = ''
