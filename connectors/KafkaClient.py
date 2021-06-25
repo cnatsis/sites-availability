@@ -60,31 +60,31 @@ class KafkaClient:
             # ssl_keyfile=key_path,
         )
 
-    def consume(self, topics, group_id, auto_offset_reset, pg_table):
-        """
-        Consume data process that stores received records to PostgreSQL table
-        :param topics: Kafka topics to subscribe
-        :param group_id: Kafka consumer group ID
-        :param auto_offset_reset: Read from start or end of stream. Valid values 'earliest' or 'latest'.
-        :param pg_table: PostgreSQL target table
-        :return: None
-        """
-        consumer = self.create_consumer(group_id, auto_offset_reset)
-        print("Consuming Kafka Topic. Press Ctrl+C to exit")
-        consumer.subscribe(topics)
-        # Group rebalancing !!!!!!
-
-        con = PostgreSQLConnector("localhost", 5432, "sites", "postgres", "postgres")
-
-        try:
-            for msg in consumer:
-                print(f"Topic: {msg.topic}, Offset: {msg.offset}, Key: {msg.key}, Value: {msg.value}")
-                con.insert(pg_table, msg.value)
-            con.close()
-        except KeyboardInterrupt:
-            consumer.commit()
-            consumer.close()
-            con.close()
+    # def consume(self, topics, group_id, auto_offset_reset, pg_table):
+    #     """
+    #     Consume data process that stores received records to PostgreSQL table
+    #     :param topics: Kafka topics to subscribe
+    #     :param group_id: Kafka consumer group ID
+    #     :param auto_offset_reset: Read from start or end of stream. Valid values 'earliest' or 'latest'.
+    #     :param pg_table: PostgreSQL target table
+    #     :return: None
+    #     """
+    #     consumer = self.create_consumer(group_id, auto_offset_reset)
+    #     print("Consuming Kafka Topic. Press Ctrl+C to exit")
+    #     consumer.subscribe(topics)
+    #     # Group rebalancing !!!!!!
+    #
+    #     con = PostgreSQLConnector("localhost", 5432, "sites", "postgres", "postgres")
+    #
+    #     try:
+    #         for msg in consumer:
+    #             print(f"Topic: {msg.topic}, Offset: {msg.offset}, Key: {msg.key}, Value: {msg.value}")
+    #             con.insert(pg_table, msg.value)
+    #         con.close()
+    #     except KeyboardInterrupt:
+    #         consumer.commit()
+    #         consumer.close()
+    #         con.close()
 
     def produce(self, topic, key, message):
         """

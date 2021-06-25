@@ -19,6 +19,8 @@ services:
     volumes:
       - ./consumer:/app
       - ./common:/app
+#    env_file:
+#      -
     environment:
   #      - KAFKA_BROKER "localhost"
   #      - KAFKA_PORT = 9092

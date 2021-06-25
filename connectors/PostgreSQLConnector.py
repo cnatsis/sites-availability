@@ -57,6 +57,19 @@ class PostgreSQLConnector:
         self.cursor.close()
         self.connection.close()
 
+    @staticmethod
+    def prepare_insert_statement(table, fields):
+        """
+        Prepares insert statement
+        :param table: target table
+        :param fields: field names
+        :return: Expected output INSERT INTO "table_name" ("field_1", "field_1") values (%(field_1)s, %(field_2)s)
+        """
+        return sql.SQL("INSERT INTO {table} ({fields}) values ({values})") \
+            .format(table=sql.Identifier(table),
+                    fields=sql.SQL(', ').join(map(sql.Identifier, list(fields))),
+                    values=sql.SQL(', ').join(map(sql.Placeholder, list(fields))))
+
     def insert(self, table, input_object):
         """
         Executes an INSERT query for a given dict
@@ -64,10 +77,7 @@ class PostgreSQLConnector:
         :param input_object: Sample object {"key1": "value1", "key2": "value2"}
         :return: None
         """
-        s = sql.SQL("INSERT INTO {table} ({fields}) values ({values})") \
-            .format(table=sql.Identifier(table),
-                    fields=sql.SQL(', ').join(map(sql.Identifier, list(input_object.keys()))),
-                    values=sql.SQL(', ').join(map(sql.Placeholder, list(input_object.keys()))))
+        s = self.prepare_insert_statement(table, input_object.keys())
         try:
             self.cursor.execute(s, input_object)
         except Exception as e:
@@ -76,6 +86,19 @@ class PostgreSQLConnector:
             return type(e).__name__
         self.connection.commit()
         self.close()
+
+    def create_table(self):
+        try:
+            conn = psycopg2.connect(self.pg["service_uri"])
+        except psycopg2.OperationalError as e:
+            print("{self.config['pg_name]} service not yet available. Waiting.", self.get_error_message(e))
+            return 1
+
+        with conn:
+            with conn.cursor() as cursor:
+                with open("sensor_temperature.sql", "r") as table_sql:
+                    cursor.execute(table_sql.read())
+        return 0
 
     def run_query(self, query, output_format='json'):
         """
