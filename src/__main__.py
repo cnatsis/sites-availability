@@ -1,6 +1,6 @@
 from multiprocessing import Process
 
-from src import SitesAvailability
+from src import SitesAvailability, connectors
 from src.utils import PeriodicThread, constants
 
 if __name__ == '__main__':

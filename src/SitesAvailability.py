@@ -22,7 +22,7 @@ class SitesAvailability:
         """
         super().__init__()
         self.kafka = KafkaClient()
-        self.sites = utils.read_file(utils.constants.SITES_FILE_PATH)
+        self.sites = utils.read_file_to_list(utils.constants.SITES_FILE_PATH)
 
     @staticmethod
     def get_site_metrics(site):

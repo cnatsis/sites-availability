@@ -1,7 +1,7 @@
 from os import path
 
 
-def read_file(file_name):
+def read_file_to_list(file_name):
     """
     Reads a file to list
     :param file_name: Input file name

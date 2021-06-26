@@ -570,4 +570,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+tests-reports/
+
 # End of https://www.gitignore.io/api/python

@@ -82,7 +82,6 @@ class PostgreSQLConnector:
             self.cursor.execute(s, input_object)
         except Exception as e:
             print("{} exception occurred: {}".format(type(e).__name__, e))
-            self.close()
             return type(e).__name__
         self.connection.commit()
 
