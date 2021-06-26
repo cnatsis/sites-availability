@@ -76,7 +76,7 @@ class SitesAvailability:
         """
         for site in self.sites:
             print('-----------------------------------')
-            # Create poller
+            print(site)
             metrics = self.get_site_metrics(site)
             if metrics['type'] == 'SUCCESS':
                 self.kafka.produce("success_topic", metrics['site_url'], metrics)
