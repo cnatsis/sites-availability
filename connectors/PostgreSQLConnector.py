@@ -85,7 +85,6 @@ class PostgreSQLConnector:
             self.close()
             return type(e).__name__
         self.connection.commit()
-        self.close()
 
     def create_table(self):
         try:
