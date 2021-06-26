@@ -4,7 +4,7 @@ import pandas as pd
 import psycopg2
 from psycopg2 import sql
 
-from utils import datetime_convert
+from src.utils import datetime_convert
 
 
 class PostgreSQLConnector:
@@ -90,7 +90,7 @@ class PostgreSQLConnector:
         try:
             conn = psycopg2.connect(self.pg["service_uri"])
         except psycopg2.OperationalError as e:
-            print("{self.config['pg_name]} service not yet available. Waiting.", self.get_error_message(e))
+            print("{self.config['pg_name]} service not yet available. Waiting.", json.loads(e)["message"])
             return 1
 
         with conn:

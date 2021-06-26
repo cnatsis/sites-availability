@@ -1,4 +1,4 @@
-environs==9.3.2 # Delete it if conf file provided
+environs==9.3.2
 kafka-python==2.0.2
 psycopg2==2.9.1
 pandas==1.2.5

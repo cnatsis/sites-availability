@@ -1,7 +1,7 @@
 from multiprocessing import Process
 
-from SitesAvailability import SitesAvailability
-from utils import PeriodicThread
+from src import SitesAvailability
+from src.utils import PeriodicThread, constants
 
 if __name__ == '__main__':
     # Used env_file. Could have used argParser
@@ -11,9 +11,8 @@ if __name__ == '__main__':
     # Why multiprocessing Process and not threading.Thread
 
     # Producer thread
-    # producer_thread = Process(target=sites_availability.produce_metrics_to_kafka)
-    # producer_thread = Process(target=PeriodicThread(callback=sites_availability.produce_metrics_to_kafka).run())
-    producer_thread = PeriodicThread(callback=sites_availability.produce_metrics_to_kafka, period=5)
+    producer_thread = PeriodicThread(callback=sites_availability.produce_metrics_to_kafka,
+                                     period=constants.PRODUCER_INTERVAL)
     producer_thread.start()
 
     # Consumer threads

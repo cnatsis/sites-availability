@@ -3,7 +3,7 @@ import threading
 
 
 # https://gist.github.com/cypreess/5481681
-class PeriodicThread(object):
+class PeriodicThread:
     """
     Python periodic Thread using Timer with instant cancellation
     """
@@ -46,7 +46,7 @@ class PeriodicThread(object):
         try:
             self.run()
         except Exception as e:
-            logging.exception("Exception in running periodic thread")
+            logging.exception("Exception in running periodic thread: {}".format(e))
         finally:
             with self.schedule_lock:
                 if not self.stop:

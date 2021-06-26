@@ -3,17 +3,17 @@ from datetime import datetime
 
 import requests
 
-import utils
-from connectors import KafkaClient, PostgreSQLConnector
+from src import utils
+from src.connectors import KafkaClient, PostgreSQLConnector
 
 
 class SitesAvailability:
     """
-    A class that interacts with Apache Kafka consumers and producers
+    A class that fetches metrics from various sites & produces records to Apache Kafka.
+    Also, it consumes produced records from Kafka and sinks them to a PostgreSQL database
 
     Usage:
-    kafka = KafkaClient('localhost:9092') or ...
-    kafka = KafkaClient()
+    sites_availability = SitesAvailability()
     """
 
     def __init__(self):
@@ -22,10 +22,7 @@ class SitesAvailability:
         """
         super().__init__()
         self.kafka = KafkaClient()
-        self.sites = utils.read_file('conf/sites.txt')
-
-    # def validate_site_url(self, site_url):
-    #     return re.search()
+        self.sites = utils.read_file(utils.constants.SITES_FILE_PATH)
 
     @staticmethod
     def get_site_metrics(site):

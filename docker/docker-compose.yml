@@ -1,0 +1,14 @@
+version: "3"
+
+services:
+  sites-availability:
+    image: sites-availability:latest
+    container_name: sites-availability
+    build: ..
+    volumes:
+      - ./sql:/app
+      - ./conf:/app
+    #    env_file:
+    #      -
+    environment:
+      - PRODUCER_INTERVAL=10
