@@ -23,6 +23,14 @@ class SitesAvailability:
         super().__init__()
         self.kafka = KafkaClient()
         self.sites = utils.read_file_to_list(utils.constants.SITES_FILE_PATH)
+        self.kafka.create_topic(
+            "success_requests",
+            partitions=3
+        )
+        self.kafka.create_topic(
+            "error_requests",
+            partitions=3
+        )
 
     @staticmethod
     def get_site_metrics(site):
@@ -76,9 +84,9 @@ class SitesAvailability:
             print(site)
             metrics = self.get_site_metrics(site)
             if metrics['type'] == 'SUCCESS':
-                self.kafka.produce("success_topic", metrics['site_url'], metrics)
+                self.kafka.produce("success_requests", metrics['site_url'], metrics)
             else:
-                self.kafka.produce("error_topic", metrics['site_url'], metrics)
+                self.kafka.produce("error_requests", metrics['site_url'], metrics)
 
     def consume_metrics_sink_postgres(self, topics, group_id, auto_offset_reset, pg_table):
         """
@@ -90,11 +98,10 @@ class SitesAvailability:
         :return: None
         """
         consumer = self.kafka.create_consumer(group_id, auto_offset_reset)
-        print("Consuming Kafka Topic. Press Ctrl+C to exit")
+        print(f"Consuming Kafka Topic '{topics}'. Press Ctrl+C to exit")
         consumer.subscribe(topics)
-        # Group rebalancing !!!!!!
 
-        con = PostgreSQLConnector("localhost", 5432, "sites", "postgres", "postgres")
+        con = PostgreSQLConnector()
 
         try:
             for msg in consumer:

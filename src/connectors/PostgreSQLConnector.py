@@ -5,12 +5,16 @@ import psycopg2
 from psycopg2 import sql
 
 from src.utils import datetime_convert
+from src.connectors import AivenConnector
+from src.utils import constants
 
 
 class PostgreSQLConnector:
     """
+    A class that interacts with PostgreSQL (Aiven PostgreSQL managed service)
+
     Usage:
-    con = PostgreSQLConnector("localhost", 5432, "schema", "user", "pass")
+    con = PostgreSQLConnector()
 
     SELECT query example
     res = con.run_query('select * from my_table')
@@ -19,24 +23,13 @@ class PostgreSQLConnector:
     res = con.insert('my_table', {"my_field": <value>})
     """
 
-    def __init__(self, host, port, database, user, password):
+    def __init__(self):
         """
         Initializes a connection with PostgreSQL database.
-        :param host: PostgreSQL database IP
-        :param port: PostgreSQL database port
-        :param database: PostgreSQL database name
-        :param user: PostgreSQL database username
-        :param password: PostgreSQL database password
         """
-        # self.user = user
-        # self.password = password
-        self.pg = None
-        self.connection = psycopg2.connect(
-            host=host,
-            port=port,
-            database=database,
-            user=user,
-            password=password)
+        self.aiven = AivenConnector(constants.config)
+        self.pg = self.aiven.get_service(constants.AIVEN_PROJECT, constants.AIVEN_PG_NAME)
+        self.connection = psycopg2.connect(self.pg["service_uri"])
         if self.connection is not None:
             self.cursor = self.connection.cursor()
         else:
@@ -85,19 +78,6 @@ class PostgreSQLConnector:
             return type(e).__name__
         self.connection.commit()
 
-    def create_table(self):
-        try:
-            conn = psycopg2.connect(self.pg["service_uri"])
-        except psycopg2.OperationalError as e:
-            print("{self.config['pg_name]} service not yet available. Waiting.", json.loads(e)["message"])
-            return 1
-
-        with conn:
-            with conn.cursor() as cursor:
-                with open("sensor_temperature.sql", "r") as table_sql:
-                    cursor.execute(table_sql.read())
-        return 0
-
     def run_query(self, query, output_format='json'):
         """
         Executes a given query. Output format can be either JSON, or Pandas DataFrame.
@@ -114,3 +94,13 @@ class PostgreSQLConnector:
                 return pd.read_json(json.dumps(res, default=datetime_convert))
             else:
                 return json.dumps(res)
+
+    def run_from_file(self, file):
+        """
+        Run SQL query from file
+        :param file: file path
+        """
+        with open(file, "r") as sql_file:
+            print(f"Executing query from file '{file}'...")
+            self.cursor.execute(sql_file.read())
+            self.connection.commit()
