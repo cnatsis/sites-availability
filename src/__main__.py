@@ -18,9 +18,9 @@ if __name__ == '__main__':
     # Consumer threads
     # Two (2) threads, one (1) for each use case and Kafka topic
     success_topic_thread = Process(target=sites_availability.consume_metrics_sink_postgres,
-                                   args=("success_topic", "test_topic_group", "earliest", "success_requests"))
+                                   args=("success_requests", "test_topic_group", "earliest", "success_requests"))
     error_topic_thread = Process(target=sites_availability.consume_metrics_sink_postgres,
-                                 args=("error_topic", "test_topic_group", "earliest", "error_requests"))
+                                 args=("error_requests", "test_topic_group", "earliest", "error_requests"))
 
     success_topic_thread.start()
     error_topic_thread.start()
