@@ -4,9 +4,9 @@ services:
   sites-availability:
     image: sites-availability:latest
     container_name: sites-availability
-    build: ""
+    build: .
     volumes:
-      - ./conf:/app
+      - ./conf:/app/conf
     env_file:
       - credentials.env
     environment:
