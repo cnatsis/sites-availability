@@ -571,5 +571,5 @@ dmypy.json
 .pyre/
 
 tests-reports/
-
+credentials.env
 # End of https://www.gitignore.io/api/python
