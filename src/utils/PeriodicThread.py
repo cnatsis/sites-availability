@@ -10,7 +10,7 @@ class PeriodicThread:
 
     def __init__(self, callback=None, period=3, name=None, *args, **kwargs):
         """
-
+        Initialize Periodic Thread
         :param callback: Callback function
         :param period: Interval period in seconds
         :param name: name of thread
