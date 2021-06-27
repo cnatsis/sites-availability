@@ -2,9 +2,21 @@ import json
 import unittest
 
 from src import SitesAvailability, utils, connectors
+from src.utils import PeriodicThread
+
+
+def test_sum():
+    """
+    Mock the sum of 1 + 1 and store it in a class variable (mutated)
+    :return: result in class variable
+    """
+    ApplicationTests.test_var = 1 + 1
+    print(ApplicationTests.test_var)
+    return ApplicationTests.test_var
 
 
 class ApplicationTests(unittest.TestCase):
+    test_var = None
 
     def test_get_site_metrics_error(self):
         sites_availability = SitesAvailability()
@@ -60,6 +72,13 @@ class ApplicationTests(unittest.TestCase):
         payload = {"id": "null"}
         pg.insert("error_requests", payload)
         self.assertEqual("InFailedSqlTransaction", pg.insert("error_requests", payload))
+
+    def test_periodic_thread(self):
+        producer_thread = PeriodicThread(callback=test_sum,
+                                         period=0)
+        producer_thread.start()
+        producer_thread.cancel()
+        self.assertEqual(ApplicationTests.test_var, 2)
 
 
 if __name__ == '__main__':
