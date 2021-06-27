@@ -11,7 +11,6 @@ def test_sum():
     :return: result in class variable
     """
     ApplicationTests.test_var = 1 + 1
-    print(ApplicationTests.test_var)
     return ApplicationTests.test_var
 
 
@@ -42,19 +41,19 @@ class ApplicationTests(unittest.TestCase):
         self.assertEqual(file_content, [])
 
     def test_prepare_insert_statement(self):
-        pg = connectors.PostgreSQLConnector("localhost", 5432, "sites", "postgres", "postgres")
+        pg = connectors.PostgreSQLConnector()
         insert_stmt = pg.prepare_insert_statement('test', {"field_1": "value1", "field_2": "value2"})
         expected_stmt = """INSERT INTO "test" ("field_1", "field_2") values (%(field_1)s, %(field_2)s)"""
         self.assertEqual(insert_stmt.as_string(pg.connection), expected_stmt)
 
     def test_sql_injection_prepare_statement(self):
-        pg = connectors.PostgreSQLConnector("localhost", 5432, "sites", "postgres", "postgres")
+        pg = connectors.PostgreSQLConnector()
         insert_stmt = pg.prepare_insert_statement('test', {"field_1": "null); DELETE FROM a; --"})
         expected_stmt = """INSERT INTO "test" ("field_1") values (%(field_1)s)"""
         self.assertEqual(insert_stmt.as_string(pg.connection), expected_stmt)
 
     def test_pg_insert_sql_injection(self):
-        pg = connectors.PostgreSQLConnector("localhost", 5432, "sites", "postgres", "postgres")
+        pg = connectors.PostgreSQLConnector()
         payload = {"type": "null); DROP TABLE error_requests; --"}
         pg.insert("error_requests", payload)
 
@@ -63,12 +62,12 @@ class ApplicationTests(unittest.TestCase):
         self.assertGreaterEqual(json.loads(pg_res)[0]['count'], 0)
 
     def test_pg_query_df(self):
-        pg = connectors.PostgreSQLConnector("localhost", 5432, "sites", "postgres", "postgres")
+        pg = connectors.PostgreSQLConnector()
         pg_res = pg.run_query('SELECT COUNT(*) FROM error_requests', 'df')
         self.assertGreaterEqual(pg_res.iloc[0]['count'], 0)
 
     def test_pg_insert_exception(self):
-        pg = connectors.PostgreSQLConnector("localhost", 5432, "sites", "postgres", "postgres")
+        pg = connectors.PostgreSQLConnector()
         payload = {"id": "null"}
         pg.insert("error_requests", payload)
         self.assertEqual("InFailedSqlTransaction", pg.insert("error_requests", payload))

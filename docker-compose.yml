@@ -4,11 +4,10 @@ services:
   sites-availability:
     image: sites-availability:latest
     container_name: sites-availability
-    build: ..
+    build: ""
     volumes:
-      - ./sql:/app
       - ./conf:/app
     env_file:
-      - ../credentials.env
+      - credentials.env
     environment:
       - PRODUCER_INTERVAL=10

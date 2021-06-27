@@ -1,8 +1,7 @@
-import time
 from multiprocessing import Process
 
-from src import SitesAvailability, connectors
-from src.connectors import AivenConnector, KafkaClient, PostgreSQLConnector
+from src import SitesAvailability
+from src.connectors import AivenConnector, PostgreSQLConnector
 from src.utils import PeriodicThread, constants
 
 
@@ -30,7 +29,7 @@ if __name__ == '__main__':
     )
 
     # Wait for services to be in RUNNING state
-    # aiven.wait_to_run(constants.config['project'], constants.config['kafka_name'])
+    aiven.wait_to_run(constants.config['project'], constants.config['kafka_name'])
     aiven.wait_to_run(constants.config['project'], constants.config['pg_name'])
 
     # Create tables if not exist

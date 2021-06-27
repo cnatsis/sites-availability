@@ -104,3 +104,4 @@ class PostgreSQLConnector:
             print(f"Executing query from file '{file}'...")
             self.cursor.execute(sql_file.read())
             self.connection.commit()
+            sql_file.close()

@@ -58,6 +58,8 @@ class SitesAvailability:
             if search_text:
                 grouped_text = search_text.group(1)
 
+            b.close()
+
             return {
                 "request_time": request_time,
                 "type": "SUCCESS",
@@ -77,7 +79,6 @@ class SitesAvailability:
     def produce_metrics_to_kafka(self):
         """
         Polled fetching of metrics for each site in list.
-        :return: None
         """
         for site in self.sites:
             print('-----------------------------------')
@@ -95,7 +96,6 @@ class SitesAvailability:
         :param group_id: Kafka consumer group ID
         :param auto_offset_reset: Read from start or end of stream. Valid values 'earliest' or 'latest'.
         :param pg_table: PostgreSQL target table
-        :return: None
         """
         consumer = self.kafka.create_consumer(group_id, auto_offset_reset)
         print(f"Consuming Kafka Topic '{topics}'. Press Ctrl+C to exit")

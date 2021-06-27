@@ -71,30 +71,6 @@ class AivenConnector:
             print(f"No service '{service_name}' found!")
             return None
 
-    # def update_service(self, project, service_name, service_config=None):
-    #     """
-    #
-    #     :param project: Aiven project
-    #     :param service_name: Service name
-    #     :param service_config: Aiven service settings. Example: service_config = {"kafka_connect": True}
-    #     :return:
-    #     """
-    #     if service_config is None:
-    #         service_config = {}
-    #     try:
-    #         aiven_service = self.client.get_service(project, service_name)
-    #         for key in service_config.keys():
-    #
-    #             if not aiven_service["user_config"][key]:
-    #                 print(f"Enabling '{key}' for {service_name}...")
-    #                 self.kafka = self.client.update_service(
-    #                     project, service_name, user_config=service_config
-    #                 )
-    #             else:
-    #                 print(f"Kafka Connect is already enabled on {self.config['kafka_name']}!")
-    #     except Error:
-    #         print(f"No service '{self.config['kafka_name']}' found!")
-
     def is_service_running(self, project, service_name):
         """
         Checks if Aiven service is in RUNNING state
