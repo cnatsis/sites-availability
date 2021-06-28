@@ -15,6 +15,10 @@ RUN pip3 install -r requirements.txt
 
 COPY . .
 
+RUN ln -sf /usr/share/zoneinfo/Europe/Athens /etc/localtime
+RUN echo "Europe/Europe" > /etc/timezone
+RUN dpkg-reconfigure -f noninteractive tzdata
+
 ENV PYTHONUNBUFFERED=1
 
 CMD ["python3", "-m", "src"]
