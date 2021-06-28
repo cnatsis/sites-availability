@@ -1,0 +1,2 @@
+https://www.cnn.com <title>(.*?)</title>
+https://www.google.com <title>(.*?)</title>

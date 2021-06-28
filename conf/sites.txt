@@ -1,5 +1,5 @@
-https://www.google.coma
-https://www.cnn.com
+https://www.google.coma <title>(.*?)</title>
+https://www.cnn.com <title>(.*?)</title>
 https://www.facebook.com
 None
 test

@@ -6,5 +6,6 @@ CREATE TABLE IF NOT EXISTS success_requests
     site_url character varying(255),
     response_time_sec double precision,
     status_code int,
-    regex_search character varying(255)
+    regex character varying(255),
+    regex_result character varying(255)
 );

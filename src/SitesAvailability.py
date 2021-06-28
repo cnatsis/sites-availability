@@ -22,7 +22,7 @@ class SitesAvailability:
         """
         super().__init__()
         self.kafka = KafkaClient()
-        self.sites = utils.read_file_to_list(utils.constants.SITES_FILE_PATH)
+        self.sites = utils.read_file_to_tuple(utils.constants.SITES_FILE_PATH)
         self.kafka.create_topic(
             "success_requests",
             partitions=3
@@ -33,16 +33,17 @@ class SitesAvailability:
         )
 
     @staticmethod
-    def get_site_metrics(site):
+    def get_site_metrics(site, regex):
         """
         Fetches site metrics
         :param site: Site to check
+        :param regex: Regular expression to check
         :return: Metrics dict for both successful and unsuccessful requests
         """
         now = datetime.now()
 
         request_time = now.strftime("%Y-%m-%d %H:%M:%S")
-        print("request_time={}".format(request_time))
+        print(f"{request_time}: Website to check: {site}, Regex: {regex}")
         try:
             b = requests.get(site)
             b.raise_for_status()
@@ -52,11 +53,12 @@ class SitesAvailability:
             status_code = b.status_code
 
             # Search for title tag in HTML. Leave empty string if title not found.
-            search_text = re.search("<title>(.*?)</title>", b.text)
-
             grouped_text = ''
-            if search_text:
-                grouped_text = search_text.group(1)
+            if regex is not None:
+                # Regex exists in list
+                search_text = re.search(regex, b.text)
+                if search_text:
+                    grouped_text = search_text.group(1)
 
             b.close()
 
@@ -66,7 +68,8 @@ class SitesAvailability:
                 "site_url": site,
                 "response_time_sec": http_response_time,
                 "status_code": status_code,
-                "regex_search": grouped_text
+                "regex": regex,
+                "regex_result": grouped_text[:254]  # Fetch only 254 characters to avoid SQL error
             }
         except requests.exceptions.RequestException as e:
             return {
@@ -80,10 +83,12 @@ class SitesAvailability:
         """
         Polled fetching of metrics for each site in list.
         """
-        for site in self.sites:
-            print('-----------------------------------')
-            print(site)
-            metrics = self.get_site_metrics(site)
+        for pair in self.sites:
+            site = pair[0]
+            regex = None
+            if len(pair) > 1:
+                regex = pair[1]
+            metrics = self.get_site_metrics(site, regex)
             if metrics['type'] == 'SUCCESS':
                 self.kafka.produce("success_requests", metrics['site_url'], metrics)
             else:
@@ -102,7 +107,6 @@ class SitesAvailability:
         consumer.subscribe(topics)
 
         con = PostgreSQLConnector()
-
         try:
             for msg in consumer:
                 print(f"Topic: {msg.topic}, Offset: {msg.offset}, Key: {msg.key}, Value: {msg.value}")

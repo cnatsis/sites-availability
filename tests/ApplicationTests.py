@@ -20,25 +20,41 @@ class ApplicationTests(unittest.TestCase):
     def test_get_site_metrics_error(self):
         sites_availability = SitesAvailability()
         site = 'https://www.google.coma'
-        metrics = sites_availability.get_site_metrics(site)
+        metrics = sites_availability.get_site_metrics(site, None)
         self.assertEqual(metrics['type'], 'ERROR')
 
     def test_get_site_metrics_empty_error(self):
         sites_availability = SitesAvailability()
         site = None
-        metrics = sites_availability.get_site_metrics(site)
+        regex = None
+        metrics = sites_availability.get_site_metrics(site, regex)
         self.assertEqual(metrics['type'], 'ERROR')
 
     def test_get_site_metrics_success(self):
         sites_availability = SitesAvailability()
         site = 'https://www.google.com'
-        metrics = sites_availability.get_site_metrics(site)
+        regex = '<title>(.*?)</title>'
+        metrics = sites_availability.get_site_metrics(site, regex)
         self.assertEqual(metrics['type'], 'SUCCESS')
 
     def test_file_not_exists(self):
         file_name = 'test.txt'
         file_content = utils.read_file_to_list(file_name)
         self.assertEqual(file_content, [])
+
+    def test_file_to_tuple(self):
+        file_name = 'sites.txt'
+        file_content = utils.read_file_to_tuple(file_name)
+        site = file_content[0][0]
+        regex = file_content[0][1]
+        self.assertEqual(site, 'https://www.cnn.com')
+        self.assertEqual(regex, '<title>(.*?)</title>')
+
+    def test_file_to_list(self):
+        file_name = 'sites.txt'
+        file_content = utils.read_file_to_list(file_name)
+        line = file_content[0]
+        self.assertEqual(line, 'https://www.cnn.com <title>(.*?)</title>')
 
     def test_prepare_insert_statement(self):
         pg = connectors.PostgreSQLConnector()
